@@ -1,4 +1,4 @@
-package juc.concurrent.programming;
+package juc.concurrent.programming.producerconsumer;
 
 public class Zero7ProducerConsumer_Sync {
     public static void main(String[] args) {

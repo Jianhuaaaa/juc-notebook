@@ -1,4 +1,4 @@
-package juc.concurrent.programming;
+package juc.concurrent.programming.producerconsumer;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
