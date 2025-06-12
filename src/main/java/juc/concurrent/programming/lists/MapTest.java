@@ -1,9 +1,7 @@
 package juc.concurrent.programming.lists;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MapTest {
