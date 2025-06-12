@@ -1,0 +1,98 @@
+package juc.concurrent.programming.queue;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+public class BlockQueueDemo {
+    public static void main(String[] args) throws InterruptedException {
+//        queueThrowExceptionDemo();
+//        queueReturnValue();
+//        queueWaitBlock();
+        queueWaitTimeout();
+    }
+
+    /**
+     * 抛出异常解决方案：
+     * queue.add(1)
+     * queue.remove()
+     * queue.element()
+     */
+    public static void queueThrowExceptionDemo() {
+        BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(3);
+        System.out.println(queue.add(1));
+        System.out.println(queue.add(2));
+        System.out.println(queue.add(3));
+        // Exception in thread "main" java.lang.IllegalStateException: Queue full
+        // System.out.println(queue.add(4));
+        System.out.println(queue.remove());
+        System.out.println(queue.remove());
+        System.out.println(queue.remove());
+        // 查看队首元素
+        System.out.println(queue.element());
+        // Exception in thread "main" java.util.NoSuchElementException
+        // System.out.println(queue.remove());
+    }
+
+    /**
+     * 有返回值，不抛异常
+     * queue.offer(i)
+     * queue.poll()
+     * queue.peek()
+     */
+    public static void queueReturnValue() {
+        BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(3);
+        for (int i = 0; i < 4; i++) {
+            // Return `false` when i == 3
+            System.out.println(queue.offer(i));
+        }
+
+        for (int i = 0; i < 4; i++) {
+            // Return `null` when i == 3
+            System.out.println(queue.poll());
+            // 查看队首元素
+            System.out.println(queue.peek());
+        }
+    }
+
+    /**
+     * 等待，阻塞 （一直阻塞）
+     * queue.put(1)
+     * queue.take()
+     */
+    public static void queueWaitBlock() throws InterruptedException {
+        BlockingQueue<Object> queue = new ArrayBlockingQueue<>(3);
+        queue.put(1);
+        queue.put(2);
+        queue.put(3);
+        // 队列已满， 一直阻塞
+        queue.put(4);
+        System.out.println(queue.take());
+        System.out.println(queue.take());
+        System.out.println(queue.take());
+        // 队列已空，一直阻塞
+        System.out.println(queue.take());
+    }
+
+    /**
+     * 等待，超时退出
+     * queue.offer(1, 3, TimeUnit.SECONDS)
+     * queue.poll(3, TimeUnit.SECONDS);
+     *
+     * @throws InterruptedException
+     */
+    public static void queueWaitTimeout() throws InterruptedException {
+        BlockingQueue<Object> queue = new ArrayBlockingQueue<>(3);
+        queue.offer(1, 3, TimeUnit.SECONDS);
+        queue.offer(2, 3, TimeUnit.SECONDS);
+        queue.offer(3, 3, TimeUnit.SECONDS);
+        // 等待超过3秒，退出程序
+        queue.offer(4, 3, TimeUnit.SECONDS);
+
+        queue.poll();
+        queue.poll();
+        queue.poll();
+        // 等待超过3秒，退出程序
+        queue.poll(3, TimeUnit.SECONDS);
+    }
+}
