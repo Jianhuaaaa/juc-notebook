@@ -7,10 +7,7 @@ import java.util.function.Predicate;
  */
 public class PredicateDemo {
     public static void main(String[] args) {
-        Predicate<String> predicate = (str) -> {
-            return str.isEmpty();
-        };
-
+        Predicate<String> predicate = String::isEmpty;
         System.out.println(predicate.test("Not an empty string"));
     }
 }

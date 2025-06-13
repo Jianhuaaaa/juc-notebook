@@ -7,9 +7,9 @@ import java.util.concurrent.RecursiveTask;
 import java.util.stream.LongStream;
 
 public class ForkJoinDemo extends RecursiveTask<Long> {
-    private Long start;
-    private Long end;
-    private Long temp = 10000L;
+    private final Long start;
+    private final Long end;
+    private final Long temp = 10000L;
 
     public ForkJoinDemo(Long start, Long end) {
         this.start = start;
@@ -44,8 +44,8 @@ public class ForkJoinDemo extends RecursiveTask<Long> {
     @Override
     protected Long compute() {
         if (end - start < temp) {
-            Long sum = 0L;
-            for (Long i = start; i < end; i++) {
+            long sum = 0L;
+            for (long i = start; i < end; i++) {
                 sum += i;
             }
             return sum;
