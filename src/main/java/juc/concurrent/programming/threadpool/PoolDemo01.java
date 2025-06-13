@@ -5,6 +5,8 @@ import java.util.concurrent.*;
 public class PoolDemo01 {
 
     public static void main(String[] args) {
+
+
         // 自定义线程池！工作中一定是自己创建 （阿里巴巴手册已经指出，Executors直接创建不安全）
         ExecutorService threadPool = new ThreadPoolExecutor(
                 2,
