@@ -71,6 +71,7 @@ public class CasDemo {
 ;初始值设置为超出复制范围的数字（如：2025）就会有这个问题。
 
 示例代码：
+
 ```java
 package juc.concurrent.programming.cas;
 
@@ -124,3 +125,128 @@ public class CasDemo2 {
     }
 }
 ```
+
+### 自定义自旋锁
+
+示例代码：
+
+```java
+package juc.concurrent.programming.cas;
+
+import java.util.concurrent.atomic.AtomicReference;
+
+// 自动逸的自旋锁
+public class CustomizedSpinLock {
+
+    AtomicReference<Thread> atomicReference = new AtomicReference<>();
+
+    // 加锁
+    public void myLock() {
+        Thread thread = Thread.currentThread();
+        System.out.println(Thread.currentThread().getName() + "- myLock");
+        while (!atomicReference.compareAndSet(null, thread)) {
+            // 自旋
+        }
+    }
+
+    // 解锁
+    public void myUnlock() {
+        Thread thread = Thread.currentThread();
+        System.out.println(Thread.currentThread().getName() + "- myUnlock");
+
+        atomicReference.compareAndSet(thread, null);
+    }
+}
+
+
+package juc.concurrent.programming.cas;
+
+import java.util.concurrent.TimeUnit;
+
+public class CustomizedSpinLockTest {
+    public static void main(String[] args) throws InterruptedException {
+        CustomizedSpinLock lock = new CustomizedSpinLock();
+
+        new Thread(() -> {
+            lock.myLock();
+            try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } finally {
+                lock.myUnlock();
+            }
+        }, "T1").start();
+
+        TimeUnit.SECONDS.sleep(1);
+
+        new Thread(() -> {
+            lock.myLock();
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } finally {
+                lock.myUnlock();
+            }
+        }, "T2").start();
+    }
+}
+```
+
+### 死锁
+
+![死锁.png](../../src/main/resources/pictures/juc_concurrent_programming/cas/%E6%AD%BB%E9%94%81.png)
+
+示例代码：
+
+```java
+package juc.concurrent.programming.cas;
+
+import java.util.concurrent.TimeUnit;
+
+// 模拟死锁
+public class DeadLockTest {
+    private static String strA = "String A";
+    private static String strB = "String B";
+
+    public static void main(String[] args) {
+        new Thread(new MyThread(strA, strB), "T1").start();
+        new Thread(new MyThread(strB, strA), "T1").start();
+    }
+}
+
+class MyThread implements Runnable {
+    private String strA;
+    private String strB;
+
+    public MyThread(String strA, String strB) {
+        this.strA = strA;
+        this.strB = strB;
+    }
+
+    @Override
+    public void run() {
+        synchronized (strA) {
+            System.out.println(Thread.currentThread().getName() + "lock: " + strA + "- get" + strB);
+            try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            synchronized (strB) {
+                System.out.println(Thread.currentThread().getName() + "lock: " + strB + "- get" + strA);
+            }
+        }
+    }
+}
+```
+
+#### 死锁排查
+
+1. 使用 `jps -l` 定位进程号
+   ![jps -l查看进程号.png](../../src/main/resources/pictures/juc_concurrent_programming/cas/jps%20-l%E6%9F%A5%E7%9C%8B%E8%BF%9B%E7%A8%8B%E5%8F%B7.png)
+2. 使用 `jstack 进程号` 找到死锁问题
+   ![使用jstack 进程号查看死锁问题.png](../../src/main/resources/pictures/juc_concurrent_programming/cas/%E4%BD%BF%E7%94%A8jstack%20%E8%BF%9B%E7%A8%8B%E5%8F%B7%E6%9F%A5%E7%9C%8B%E6%AD%BB%E9%94%81%E9%97%AE%E9%A2%98.png)
+
